@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0re30zk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0re30zk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
   <bpmn:process id="TwitterQAProcess" name="Twitter QA" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0q7ib2t</bpmn:outgoing>
@@ -25,10 +25,6 @@
       <bpmn:incoming>Flow_1m9sfth</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1m9sfth" sourceRef="Activity_1clbno9" targetRef="Event_1l9v87m" />
-    <bpmn:userTask id="Activity_1toj780" name="Review tweet" camunda:candidateGroups="management">
-      <bpmn:incoming>Flow_0q7ib2t</bpmn:incoming>
-      <bpmn:outgoing>Flow_1vv8cdx</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:scriptTask id="Activity_0tnf4qs" name="Publish tweet" scriptFormat="javascript">
       <bpmn:incoming>Flow_00pjyae</bpmn:incoming>
       <bpmn:outgoing>Flow_17ksdnz</bpmn:outgoing>
@@ -39,6 +35,10 @@
       <bpmn:outgoing>Flow_1m9sfth</bpmn:outgoing>
       <bpmn:script>print('Tweet rejected');</bpmn:script>
     </bpmn:scriptTask>
+    <bpmn:manualTask id="Activity_1toj780" name="Review tweet">
+      <bpmn:incoming>Flow_0q7ib2t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vv8cdx</bpmn:outgoing>
+    </bpmn:manualTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TwitterQAProcess">
@@ -63,14 +63,14 @@
           <dc:Bounds x="674" y="265" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0uhsdow_di" bpmnElement="Activity_1toj780">
-        <dc:Bounds x="270" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_003ihp9_di" bpmnElement="Activity_0tnf4qs">
         <dc:Bounds x="530" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0oxysqq_di" bpmnElement="Activity_1clbno9">
         <dc:Bounds x="530" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ummjq8_di" bpmnElement="Activity_1toj780">
+        <dc:Bounds x="270" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0q7ib2t_di" bpmnElement="Flow_0q7ib2t">
         <di:waypoint x="218" y="130" />
