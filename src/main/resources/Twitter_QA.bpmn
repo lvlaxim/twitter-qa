@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0re30zk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0re30zk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
   <bpmn:process id="TwitterQAProcess" name="Twitter QA" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0q7ib2t</bpmn:outgoing>
@@ -25,11 +25,6 @@
       <bpmn:incoming>Flow_1m9sfth</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1m9sfth" sourceRef="Activity_1clbno9" targetRef="Event_1l9v87m" />
-    <bpmn:scriptTask id="Activity_0tnf4qs" name="Publish tweet" scriptFormat="javascript">
-      <bpmn:incoming>Flow_00pjyae</bpmn:incoming>
-      <bpmn:outgoing>Flow_17ksdnz</bpmn:outgoing>
-      <bpmn:script>print('publishing tweet ...');</bpmn:script>
-    </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_1clbno9" name="Notify user of rejection" scriptFormat="javascript">
       <bpmn:incoming>Flow_12e61s0</bpmn:incoming>
       <bpmn:outgoing>Flow_1m9sfth</bpmn:outgoing>
@@ -39,6 +34,10 @@
       <bpmn:incoming>Flow_0q7ib2t</bpmn:incoming>
       <bpmn:outgoing>Flow_1vv8cdx</bpmn:outgoing>
     </bpmn:manualTask>
+    <bpmn:serviceTask id="Activity_0tnf4qs" name="Publish tweet" camunda:class="com.camunda.training.CreateTweetDelegate">
+      <bpmn:incoming>Flow_00pjyae</bpmn:incoming>
+      <bpmn:outgoing>Flow_17ksdnz</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TwitterQAProcess">
@@ -63,14 +62,14 @@
           <dc:Bounds x="674" y="265" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_003ihp9_di" bpmnElement="Activity_0tnf4qs">
-        <dc:Bounds x="530" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0oxysqq_di" bpmnElement="Activity_1clbno9">
         <dc:Bounds x="530" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ummjq8_di" bpmnElement="Activity_1toj780">
         <dc:Bounds x="270" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00hep88_di" bpmnElement="Activity_0tnf4qs">
+        <dc:Bounds x="530" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0q7ib2t_di" bpmnElement="Flow_0q7ib2t">
         <di:waypoint x="218" y="130" />
@@ -84,8 +83,12 @@
         <di:waypoint x="475" y="130" />
         <di:waypoint x="530" y="130" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="494" y="112" width="18" height="14" />
+          <dc:Bounds x="495" y="112" width="17" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17ksdnz_di" bpmnElement="Flow_17ksdnz">
+        <di:waypoint x="630" y="130" />
+        <di:waypoint x="692" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12e61s0_di" bpmnElement="Flow_12e61s0">
         <di:waypoint x="450" y="155" />
@@ -94,10 +97,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="459" y="195" width="13" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17ksdnz_di" bpmnElement="Flow_17ksdnz">
-        <di:waypoint x="630" y="130" />
-        <di:waypoint x="692" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1m9sfth_di" bpmnElement="Flow_1m9sfth">
         <di:waypoint x="630" y="240" />
