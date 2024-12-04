@@ -9,8 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
 
 @ExtendWith(ProcessEngineCoverageExtension.class)
 public class ProcessJUnitTest {
@@ -20,12 +19,22 @@ public class ProcessJUnitTest {
     public void testHappyPath() {
         // Create a HashMap to put in variables for the process instance
         Map<String, Object> variables = new HashMap<>();
-        variables.put("approved", true);
         variables.put("content", "Exercise 4 test - Maks");
         // Start process with Java API and variables
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("TwitterQAProcess", variables);
         // Make assertions on the process instance
+        assertThatTaskIsWaitingThenCompleteIt(processInstance, "Review tweet", Map.of("approved", true));
         assertThat(processInstance).isEnded();
+    }
+
+    private static void assertThatTaskIsWaitingThenCompleteIt(
+            ProcessInstance processInstance,
+            String taskName,
+            Map<String, Object> variables
+    ) {
+        String reviewTweetTaskId = findId(taskName);
+        assertThat(processInstance).isWaitingAt(reviewTweetTaskId);
+        complete(task(reviewTweetTaskId), variables);
     }
 
 }
