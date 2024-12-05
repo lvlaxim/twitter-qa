@@ -16,9 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.findId;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.taskService;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -34,7 +32,7 @@ public class ProcessJUnitTest {
 
     @Test
     @Deployment(resources = "Twitter_QA.bpmn")
-    public void testHappyPath() throws Exception {
+    public void testHappyPathApproved() throws Exception {
         // Создаем mock для CreateTweetDelegate
         CreateTweetDelegate createTweetDelegateMock = mock(CreateTweetDelegate.class);
         Mocks.register("createTweetDelegate", createTweetDelegateMock);
@@ -60,28 +58,45 @@ public class ProcessJUnitTest {
         Task reviewTask = taskList.get(0);
         assertThat(reviewTask.getName()).isEqualTo("Review tweet");
 
-        // Завершаем задачу
+        // Завершаем задачу с утверждением (approved = true)
         complete(reviewTask, Map.of("approved", true));
 
         // Проверяем, что делегат был вызван
         verify(createTweetDelegateMock).execute(any());
 
-        // Проверяем, что процесс завершился
-        assertThat(processInstance).isEnded();
+        // Проверяем, что процесс завершился с публикацией твита
+        assertThat(processInstance).isEnded().hasPassed("Event_0owvdb0");
     }
 
-    private static void assertThatTaskIsWaitingThenCompleteIt(
-            ProcessInstance processInstance,
-            String taskName,
-            Map<String, Object> variables
-    ) {
-        String reviewTweetTaskId = findId(taskName);
-        assertThat(processInstance).isWaitingAt(reviewTweetTaskId);
-        Task task = task(reviewTweetTaskId);
+    @Test
+    @Deployment(resources = "Twitter_QA.bpmn")
+    public void testRejectedPath() {
+        // Создаем переменные процесса
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("content", "Exercise 4 test - Maks");
 
-        // Добавляем явную проверку названия задачи
-        assertThat(task.getName()).isEqualTo(taskName);
+        // Запускаем процесс
+        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("TwitterQAProcess", variables);
 
-        complete(task, variables);
+        // Проверяем, что задача назначена группе "management"
+        List<Task> taskList = taskService()
+                .createTaskQuery()
+                .taskCandidateGroup("management")
+                .processInstanceId(processInstance.getId())
+                .list();
+        assertThat(taskList).asList()
+                .isNotNull()
+                .hasSize(1);
+
+        // Проверяем, что задача называется "Review tweet"
+        Task reviewTask = taskList.get(0);
+        assertThat(reviewTask.getName()).isEqualTo("Review tweet");
+
+        // Завершаем задачу с отклонением (approved = false)
+        complete(reviewTask, Map.of("approved", false));
+
+        // Проверяем, что процесс завершился с уведомлением об отклонении
+        assertThat(processInstance).isEnded().hasPassed("Event_1l9v87m");
     }
+
 }
