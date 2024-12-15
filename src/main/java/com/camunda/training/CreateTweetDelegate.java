@@ -11,8 +11,11 @@ public class CreateTweetDelegate implements JavaDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(CreateTweetDelegate.class.getName());
     TwitterService twitter = new TwitterService();
 
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
         String content =(String) execution.getVariable("content");
+        if (content.equals("Network error")) {
+            throw new RuntimeException("simulated network error");
+        }
         twitter.updateStatus(content);
     }
 }

@@ -1,5 +1,6 @@
 package com.camunda.training;
 
+import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
@@ -16,6 +17,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.execute;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.jobQuery;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.taskService;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +42,7 @@ public class ProcessJUnitTest {
 
         // Создаем переменные процесса
         Map<String, Object> variables = new HashMap<>();
-        variables.put("content", "Exercise 4 test - Maks");
+        variables.put("content", "My name is Maks");
 
         // Запускаем процесс
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("TwitterQAProcess", variables);
@@ -58,8 +61,17 @@ public class ProcessJUnitTest {
         Task reviewTask = taskList.get(0);
         assertThat(reviewTask.getName()).isEqualTo("Review tweet");
 
+
         // Завершаем задачу с утверждением (approved = true)
         complete(reviewTask, Map.of("approved", true));
+
+        // Находим job-у для Asynchronous Continuation и запускаем ее
+        List<Job> jobList = jobQuery()
+                .processInstanceId(processInstance.getId())
+                .list();
+        assertThat(jobList).hasSize(1);
+        Job job = jobList.get(0);
+        execute(job);
 
         // Проверяем, что делегат был вызван
         verify(createTweetDelegateMock).execute(any());
@@ -73,7 +85,7 @@ public class ProcessJUnitTest {
     public void testRejectedPath() {
         // Создаем переменные процесса
         Map<String, Object> variables = new HashMap<>();
-        variables.put("content", "Exercise 4 test - Maks");
+        variables.put("content", "My name is Maks");
 
         // Запускаем процесс
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("TwitterQAProcess", variables);
