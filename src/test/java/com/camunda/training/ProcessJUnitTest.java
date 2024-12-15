@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.complete;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.execute;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.findId;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.jobQuery;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.taskService;
@@ -109,6 +110,23 @@ public class ProcessJUnitTest {
 
         // Проверяем, что процесс завершился с уведомлением об отклонении
         assertThat(processInstance).isEnded().hasPassed("Event_1l9v87m");
+    }
+
+    @Test
+    @Deployment(resources = "Twitter_QA.bpmn")
+    public void testTweetRejected() {
+        Map<String, Object> varMap = Map.of(
+                "content", "My name is Maks",
+                "approved", false
+        );
+        ProcessInstance processInstance = runtimeService()
+                .createProcessInstanceByKey("TwitterQAProcess")
+                .setVariables(varMap)
+                .startAfterActivity(findId("Review tweet"))
+                .execute();
+
+        assertThat(processInstance).isEnded().hasPassed(findId("Tweet rejected"));
+
     }
 
 }
