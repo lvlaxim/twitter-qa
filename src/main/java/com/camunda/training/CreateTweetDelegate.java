@@ -8,8 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component("createTweetDelegate")
 public class CreateTweetDelegate implements JavaDelegate {
-    private final Logger LOGGER = LoggerFactory.getLogger(CreateTweetDelegate.class.getName());
-    TwitterService twitter = new TwitterService();
+
+    private final TwitterService twitter;
+
+    public CreateTweetDelegate(TwitterService twitterService) {
+        this.twitter = twitterService;
+    }
 
     public void execute(DelegateExecution execution) {
         String content =(String) execution.getVariable("content");
