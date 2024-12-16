@@ -22,6 +22,7 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.findId;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.jobQuery;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.taskService;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.externalTask;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -108,6 +109,12 @@ public class ProcessJUnitTest {
         // Завершаем задачу с отклонением (approved = false)
         complete(reviewTask, Map.of("approved", false));
 
+        assertThat(processInstance)
+                .isWaitingAt(findId("Notify user of rejection"))
+                .externalTask()
+                .hasTopicName("notification");
+        complete(externalTask());
+
         // Проверяем, что процесс завершился с уведомлением об отклонении
         assertThat(processInstance).isEnded().hasPassed("Event_1l9v87m");
     }
@@ -124,6 +131,12 @@ public class ProcessJUnitTest {
                 .setVariables(varMap)
                 .startAfterActivity(findId("Review tweet"))
                 .execute();
+
+        assertThat(processInstance)
+                .isWaitingAt(findId("Notify user of rejection"))
+                .externalTask()
+                .hasTopicName("notification");
+        complete(externalTask());
 
         assertThat(processInstance).isEnded().hasPassed(findId("Tweet rejected"));
 
