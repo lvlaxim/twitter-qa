@@ -31,3 +31,6 @@ hs_err_pid*
 
 # and DS_Store files
 */**/.DS_Store
+
+# Camunda H2 DB
+camunda-db.mv.db
